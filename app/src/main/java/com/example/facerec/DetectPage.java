@@ -4,7 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.Toast;
+
 import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.core.*;
@@ -19,21 +25,32 @@ import java.io.InputStream;
 public class DetectPage extends Activity
         implements CvCameraViewListener {
 
-    private CameraBridgeViewBase openCvCameraView;
+    JavaCameraView javaCameraView;
     private CascadeClassifier cascadeClassifier;
     private Mat grayscaleImage;
     private int absoluteFaceSize;
+    ImageButton btnMode;
+    private int mCameraId = 1;
+    String TAG = "LOG";
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_detect_page);
 
+        //параметри камери
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        openCvCameraView = new JavaCameraView(this, 1);
-        setContentView(openCvCameraView);
-        openCvCameraView.setCvCameraViewListener(this);
+        javaCameraView = (JavaCameraView)findViewById(R.id.javaCamera);
+
+        javaCameraView.setCameraIndex(1);// 1 - фронтальна 0 - передня
+
+
+        btnMode = (ImageButton)findViewById(R.id.btnMode) ;
+
 
         if(!OpenCVLoader.initDebug()){
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0, this, mLoaderCallback);
@@ -45,6 +62,8 @@ public class DetectPage extends Activity
                 e.printStackTrace();
             }
         }
+
+        javaCameraView.setCvCameraViewListener(this);
 
     }
 
@@ -69,14 +88,16 @@ public class DetectPage extends Activity
 
         // Використання класифікатор для виявлення облич
         if (cascadeClassifier != null) {
-            cascadeClassifier.detectMultiScale(grayscaleImage, faces, 1.1, 2, 2,
+            cascadeClassifier.detectMultiScale(grayscaleImage, faces, 1.1, 4, 2,
                     new Size(absoluteFaceSize, absoluteFaceSize), new Size());
         }
 
+
         // Якщо знайдені обличчя, ставим навколо нього прямокутник
         Rect[] facesArray = faces.toArray();
-        for (int i = 0; i <facesArray.length; i++)
-            Imgproc.rectangle(aInputFrame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0, 255), 3);
+        for (int i = 0; i <facesArray.length; i++){
+            Log.d(TAG,"Face ["+i+"] >> " + facesArray[i] );
+            Imgproc.rectangle(aInputFrame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0, 255), 5);}
 
         return aInputFrame;
     }
@@ -98,10 +119,10 @@ public class DetectPage extends Activity
     private void initializeOpenCVDependencies() {
 
         try {
-            // Копіювання ресурса у тимчасовий файл, щоб OpenCV міг його завантажити
-            InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+            // Копіювання кастаду у тимчасовий файл, щоб OpenCV міг його завантажити
+            InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_alt2);
             File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-            File mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+            File mCascadeFile = new File(cascadeDir, "haarcascade_frontalface_alt2.xml");
             FileOutputStream os = new FileOutputStream(mCascadeFile);
 
 
@@ -120,7 +141,14 @@ public class DetectPage extends Activity
         }
 
         // go
-        openCvCameraView.enableView();
+        javaCameraView.enableView();
+    }
+
+    public void swapCamera(View v) {
+        if(mCameraId ==1 ) mCameraId = 0; else mCameraId = 1; //bitwise not operation to flip 1 to 0 and vice versa
+        javaCameraView.disableView();
+        javaCameraView.setCameraIndex(mCameraId);
+        javaCameraView.enableView();
     }
 
 }

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.WindowManager;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -38,6 +39,10 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
     CascadeClassifier faceDetector;
     private Mat mRgba, mGray;
 
+    private CascadeClassifier cascadeClassifier;
+    private Mat grayscaleImage;
+    private int absoluteFaceSize;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -47,6 +52,10 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
         javaCameraView = (JavaCameraView)findViewById(R.id.javaCamera);
 
         javaCameraView.setCameraIndex(1);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         if(!OpenCVLoader.initDebug()){
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0, this, baseCallback);
