@@ -6,7 +6,6 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
@@ -16,7 +15,6 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
@@ -26,9 +24,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class RecognitionPage extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -61,11 +57,7 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0, this, baseCallback);
         }
         else {
-            try {
-                baseCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            baseCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
 
         javaCameraView.setCvCameraViewListener(this);
@@ -102,7 +94,7 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
 
     private BaseLoaderCallback baseCallback = new BaseLoaderCallback(this) {
         @Override
-        public void onManagerConnected(int status) throws IOException {
+        public void onManagerConnected(int status) {
             switch (status){
                 case LoaderCallbackInterface.SUCCESS:{
                     initializeOpenCVDependencies();

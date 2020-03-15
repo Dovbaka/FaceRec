@@ -2,7 +2,9 @@ package com.example.facerec;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import org.bytedeco.javacpp.opencv_face;
 import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.core.*;
@@ -32,6 +35,7 @@ public class DetectPage extends Activity
     ImageButton btnMode;
     private int mCameraId = 1;
     String TAG = "LOG";
+    private opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create();
 
 
     @Override
@@ -56,11 +60,7 @@ public class DetectPage extends Activity
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_4_0, this, mLoaderCallback);
         }
         else {
-            try {
-                mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
 
         javaCameraView.setCvCameraViewListener(this);
@@ -104,7 +104,7 @@ public class DetectPage extends Activity
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
-        public void onManagerConnected(int status) throws IOException {
+        public void onManagerConnected(int status) {
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS:
                     initializeOpenCVDependencies();
