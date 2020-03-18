@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.facerec"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -43,5 +43,4 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation project(path: ':openCVLibrary342')
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
-    compile 'com.android.support:multidex:1.0.3'
 }

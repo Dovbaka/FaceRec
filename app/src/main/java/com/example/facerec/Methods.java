@@ -32,9 +32,9 @@ public class Methods {
     public static final int PHOTOS_TRAIN_QTY = 25;
     public static final double THRESHOLD = 130.0D;
     public static final String LBPH_CLASSIFIER = "lbphClassifier.xml";
-    public static final File ROOT = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), FACE_PICS);
+    public static final File ROOT = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), FACE_PICS);
 
-    //Method for deleting all data from FacePics
+    //Видалення всіх даних з FacePics
     public static void reset() {
         File facePicsPath = new File(String.valueOf(ROOT));
 
@@ -46,7 +46,7 @@ public class Methods {
         }
     }
 
-    //Method for checking if conditions (number of pictures and classifier) are met
+    //Метод перевірки, чи виконуються умови
     public static boolean isTrained() {
         try {
             File facePicsPath = new File(String.valueOf(ROOT));
@@ -76,11 +76,12 @@ public class Methods {
         return false;
     }
 
-    //Method for checking the number of face pictures
+    //Спосіб перевірки кількості зображень лиця
     public static int numPhotos() {
         File facePicsPath = new File(String.valueOf(ROOT));
 
         if (facePicsPath.exists()) {
+            //Log.d("LOGI", "DIR: " + String.valueOf(ROOT));
             FilenameFilter photoFilter = new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -93,7 +94,7 @@ public class Methods {
         return 0;
     }
 
-    //Method for face recognition model training
+    //Метод навчання моделі розпізнавання //Потрібна доробка
     public static boolean train() throws Exception {
         File facePicsPath = new File(String.valueOf(ROOT));
 
@@ -113,20 +114,20 @@ public class Methods {
         int counter = 0;
 
         for (File image : photosArray) {
-            //Reading the image in grayscale
+            //Переводимо в сірий
             opencv_core.Mat photo = imread(image.getAbsolutePath(), opencv_imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
             //Photo number separation
             int intLabel = Integer.parseInt(image.getName().split("\\.")[0]);
-            //Resizing to 92x112
+            //Ресайз 92x112
             resize(photo, photo, new opencv_core.Size(IMG_WIDTH, IMG_HEIGHT));
-            //Histogram equalizing
+
             equalizeHist(photo, photo);
             photosMatVector.put(counter, photo);
             intBuffer.put(counter, intLabel);
             counter++;
         }
 
-        //Creating, training and saving LBPH face recognizer
+        //Сторюємо, тренуємо
         opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create();
         mLBPHFaceRecognizer.train(photosMatVector, labels);
         File trainedFaceRecognizerModel = new File(facePicsPath, LBPH_CLASSIFIER);
@@ -135,34 +136,40 @@ public class Methods {
         return true;
     }
 
-    //Method for capturing photos
-    public static void takePhoto(int photoNumber, Mat rgbaMat, CascadeClassifier faceDetector) throws Exception {
-        File facePicsPath = new File(String.valueOf(ROOT));
+    //Метод для фотографування
+    public static void takePhoto(int photoNumber, Mat rgbaMat,
+                                 CascadeClassifier cascadeClassifier,
+                                 int absoluteFaceSize) throws Exception {
 
+        File facePicsPath = new File(String.valueOf(ROOT));
         if (facePicsPath.exists() && !facePicsPath.isDirectory())
             facePicsPath.delete();
         if (!facePicsPath.exists())
             facePicsPath.mkdirs();
 
         Mat grayMat = new Mat();
-        //Converting RGBA to GRAY
+
         Imgproc.cvtColor(rgbaMat, grayMat, Imgproc.COLOR_RGBA2GRAY);
+        MatOfRect faces = new MatOfRect();
 
-        MatOfRect detectedFaces = new MatOfRect();
-        faceDetector.detectMultiScale(grayMat, detectedFaces);
-        Rect[] detectedFacesArray = detectedFaces.toArray();
+        //Детектим каскадом
+        if (cascadeClassifier != null) {
+            cascadeClassifier.detectMultiScale(rgbaMat, faces, 1.1, 4, 2,
+                    new Size(absoluteFaceSize, absoluteFaceSize), new Size());
+        }
 
+        Rect[] detectedFacesArray = faces.toArray();
         for (Rect face : detectedFacesArray) {
             Mat capturedFace = new Mat(grayMat, face);
-            //Resizing to 92x112
+
             Imgproc.resize(capturedFace, capturedFace, new Size(IMG_WIDTH, IMG_HEIGHT));
-            //Histogram equalizing
+
             Imgproc.equalizeHist(capturedFace, capturedFace);
 
             if (photoNumber <= PHOTOS_TRAIN_QTY) {
                 File savePhoto = new File(facePicsPath, String.format("%d.png", photoNumber));
                 savePhoto.createNewFile();
-                //Saving photos to directory FacePics
+                //Зберігаєм фото в FacePics
                 Imgcodecs.imwrite(savePhoto.getAbsolutePath(), capturedFace);
                 Log.i(TAG, "PIC PATH: " + savePhoto.getAbsolutePath());
             }

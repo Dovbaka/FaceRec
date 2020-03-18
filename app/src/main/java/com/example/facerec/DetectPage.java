@@ -2,6 +2,7 @@ package com.example.facerec;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -35,6 +36,7 @@ public class DetectPage extends Activity
     ImageButton btnMode;
     private int mCameraId = 1;
     String TAG = "LOG";
+    private boolean takePhoto;
     private opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create();
 
 
@@ -65,6 +67,44 @@ public class DetectPage extends Activity
 
         javaCameraView.setCvCameraViewListener(this);
 
+
+        findViewById(R.id.btnCapture).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                takePhoto = true;
+            }
+        });
+
+        findViewById(R.id.btnRecognise).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Methods.isTrained()) {
+                    Intent faceRecognizerActivityIntent = new Intent(DetectPage.this, RecognitionPage.class);
+                    startActivity(faceRecognizerActivityIntent);
+                }else {
+                    Toast.makeText(DetectPage.this, "You need to train first", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        findViewById(R.id.btnDelete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    Methods.reset();
+                    Toast.makeText(DetectPage.this, "Data cleared", Toast.LENGTH_SHORT).show();
+                }catch (Exception e) {
+                    Log.d(TAG, e.getLocalizedMessage(), e);
+                }
+            }
+        });
+
+        findViewById(R.id.btnTrain).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                train();
+            }
+        });
     }
 
     @Override
@@ -73,6 +113,7 @@ public class DetectPage extends Activity
 
         // Обличчя становитиме 20% висоти екрана
         absoluteFaceSize = (int) (height * 0.2);
+        Log.d("LOGI", "Siza: " + absoluteFaceSize);
     }
 
     @Override
@@ -82,7 +123,7 @@ public class DetectPage extends Activity
     @Override
     public Mat onCameraFrame(Mat aInputFrame) {
         // Створення зображення в градаціях сірого
-        Imgproc.cvtColor(aInputFrame, grayscaleImage, Imgproc.COLOR_RGBA2RGB);
+        Imgproc.cvtColor(aInputFrame, grayscaleImage, Imgproc.COLOR_RGBA2GRAY);
 
         MatOfRect faces = new MatOfRect();
 
@@ -92,12 +133,18 @@ public class DetectPage extends Activity
                     new Size(absoluteFaceSize, absoluteFaceSize), new Size());
         }
 
-
         // Якщо знайдені обличчя, ставим навколо нього прямокутник
         Rect[] facesArray = faces.toArray();
-        for (int i = 0; i <facesArray.length; i++){
-            Log.d(TAG,"Face ["+i+"] >> " + facesArray[i] );
-            Imgproc.rectangle(aInputFrame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0, 255), 5);}
+        for (Rect face : facesArray) {
+            Imgproc.rectangle(aInputFrame, face.tl(), face.br(), new Scalar(0, 255, 0, 255), 5);}
+
+        //Якщо виявлено одне обличчя і натиснута кнопка btnCapture, робимо фото
+        if (facesArray.length == 1) {
+            if (takePhoto) {
+                capturePhoto(aInputFrame);
+                alertRemainingPhotos();
+            }
+        }
 
         return aInputFrame;
     }
@@ -149,6 +196,70 @@ public class DetectPage extends Activity
         javaCameraView.disableView();
         javaCameraView.setCameraIndex(mCameraId);
         javaCameraView.enableView();
+    }
+
+    private void capturePhoto(Mat rgbaMat) {
+        try {
+            //Більше фото за заданий максимум в Класі Methods не зробити
+            Methods.takePhoto(Methods.numPhotos() + 1, rgbaMat.clone(), cascadeClassifier, absoluteFaceSize);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        takePhoto = false;
+    }
+
+    private void alertRemainingPhotos() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int remainingPhotos = Methods.PHOTOS_TRAIN_QTY - Methods.numPhotos();
+                if (remainingPhotos > 0) {
+                    Toast.makeText(getBaseContext(), "You need " + remainingPhotos + " more photo(s)", Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(DetectPage.this, "You took max number of photos", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void train() {
+        int remainingPhotos = Methods.PHOTOS_TRAIN_QTY - Methods.numPhotos();
+        if (remainingPhotos > 0) {
+            Toast.makeText(this, "You need " + remainingPhotos + " more photo(s)", Toast.LENGTH_SHORT).show();
+            return;
+        }else if (Methods.isTrained()) {
+            Toast.makeText(this, "Already trained", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Toast.makeText(this, "Training started", Toast.LENGTH_SHORT).show();
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                try {
+                    if (!Methods.isTrained()) {
+                        Methods.train();
+                    }
+                }catch (Exception e) {
+                    Log.d(TAG, e.getLocalizedMessage(), e);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                try {
+                    if (Methods.isTrained()) {
+                        Toast.makeText(DetectPage.this, "Training successful", Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(DetectPage.this, "Training unsuccessful", Toast.LENGTH_SHORT).show();
+                    }
+                }catch (Exception e) {
+                    Log.d(TAG, e.getLocalizedMessage(), e);
+                }
+            }
+        }.execute();
     }
 
 }
