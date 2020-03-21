@@ -25,7 +25,7 @@ import static org.opencv.core.CvType.CV_32SC1;
 
 public class Methods {
 
-    public static final String TAG = "Methods";
+    public static final String TAG = "LOGS";
     public static final String FACE_PICS = "FacePics";
     public static final int IMG_WIDTH = 92;
     public static final int IMG_HEIGHT = 112;
@@ -81,7 +81,7 @@ public class Methods {
         File facePicsPath = new File(String.valueOf(ROOT));
 
         if (facePicsPath.exists()) {
-            //Log.d("LOGI", "DIR: " + String.valueOf(ROOT));
+            //Log.d(TAG, "DIR: " + String.valueOf(ROOT));
             FilenameFilter photoFilter = new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -114,10 +114,14 @@ public class Methods {
         int counter = 0;
 
         for (File image : photosArray) {
-            //Переводимо в сірий
+            //Переведення в сірий
             opencv_core.Mat photo = imread(image.getAbsolutePath(), opencv_imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
-            //Photo number separation
-            int intLabel = Integer.parseInt(image.getName().split("\\.")[0]);
+
+            //Виділення номеру фото
+            String Label = String.valueOf(image.getName().split("\\.")[0]).replaceAll("[a-zA-Zа-яА-Я]*", "").replace("-","");
+            Log.d(TAG, Label);
+            int intLabel = Integer.parseInt(Label);
+
             //Ресайз 92x112
             resize(photo, photo, new opencv_core.Size(IMG_WIDTH, IMG_HEIGHT));
 
@@ -127,7 +131,7 @@ public class Methods {
             counter++;
         }
 
-        //Сторюємо, тренуємо
+        //Ствоернення та запис тринувального файлу
         opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create();
         mLBPHFaceRecognizer.train(photosMatVector, labels);
         File trainedFaceRecognizerModel = new File(facePicsPath, LBPH_CLASSIFIER);
@@ -136,10 +140,31 @@ public class Methods {
         return true;
     }
 
+    public static String getPhotoName(int index){
+        File facePicsPath = new File(String.valueOf(ROOT));
+
+        if (!facePicsPath.exists()) {
+            return "None";
+        }
+        FilenameFilter photoFilter = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".png");
+            }
+        };
+        File[] photosArray = facePicsPath.listFiles(photoFilter);
+
+        if (photosArray != null) {
+            return String.valueOf(photosArray[index].getName().split("\\.")[0]).replaceAll("[0-9]*", "").replace("-","");
+        }
+        return "None";
+    }
+
     //Метод для фотографування
     public static void takePhoto(int photoNumber, Mat rgbaMat,
                                  CascadeClassifier cascadeClassifier,
-                                 int absoluteFaceSize) throws Exception {
+                                 int absoluteFaceSize,
+                                 String name) throws Exception {
 
         File facePicsPath = new File(String.valueOf(ROOT));
         if (facePicsPath.exists() && !facePicsPath.isDirectory())
@@ -152,7 +177,7 @@ public class Methods {
         Imgproc.cvtColor(rgbaMat, grayMat, Imgproc.COLOR_RGBA2GRAY);
         MatOfRect faces = new MatOfRect();
 
-        //Детектим каскадом
+        //Шукає лиця
         if (cascadeClassifier != null) {
             cascadeClassifier.detectMultiScale(rgbaMat, faces, 1.1, 4, 2,
                     new Size(absoluteFaceSize, absoluteFaceSize), new Size());
@@ -167,9 +192,9 @@ public class Methods {
             Imgproc.equalizeHist(capturedFace, capturedFace);
 
             if (photoNumber <= PHOTOS_TRAIN_QTY) {
-                File savePhoto = new File(facePicsPath, String.format("%d.png", photoNumber));
+                File savePhoto = new File(facePicsPath, String.format( name + "-%d.png", photoNumber));
                 savePhoto.createNewFile();
-                //Зберігаєм фото в FacePics
+                //Зберігає фото в FacePics
                 Imgcodecs.imwrite(savePhoto.getAbsolutePath(), capturedFace);
                 Log.i(TAG, "PIC PATH: " + savePhoto.getAbsolutePath());
             }

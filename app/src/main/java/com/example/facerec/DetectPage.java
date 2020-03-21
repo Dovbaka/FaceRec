@@ -11,6 +11,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ public class DetectPage extends Activity
         implements CvCameraViewListener {
 
     JavaCameraView javaCameraView;
+    EditText nameText;
     private CascadeClassifier cascadeClassifier;
     private Mat grayscaleImage;
     private int absoluteFaceSize;
@@ -37,8 +39,6 @@ public class DetectPage extends Activity
     private int mCameraId = 1;
     String TAG = "LOG";
     private boolean takePhoto;
-    private opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create();
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +56,7 @@ public class DetectPage extends Activity
 
 
         btnMode = (ImageButton)findViewById(R.id.btnMode) ;
+        nameText = (EditText)findViewById(R.id.nameTxt);
 
 
         if(!OpenCVLoader.initDebug()){
@@ -200,8 +201,9 @@ public class DetectPage extends Activity
 
     private void capturePhoto(Mat rgbaMat) {
         try {
+            String text = nameText.getText().toString();
             //Більше фото за заданий максимум в Класі Methods не зробити
-            Methods.takePhoto(Methods.numPhotos() + 1, rgbaMat.clone(), cascadeClassifier, absoluteFaceSize);
+            Methods.takePhoto(Methods.numPhotos() + 1, rgbaMat.clone(), cascadeClassifier, absoluteFaceSize, text);
         }catch (Exception e) {
             e.printStackTrace();
         }
