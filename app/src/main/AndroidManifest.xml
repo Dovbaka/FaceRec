@@ -16,11 +16,15 @@
         <activity
             android:name=".DetectPage"
             android:screenOrientation="landscape" />
-        <activity android:name=".RecognitionPage" />
+        <activity
+            android:theme="@style/AppTheme.NoActionBar"
+            android:name=".RecognitionPage"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

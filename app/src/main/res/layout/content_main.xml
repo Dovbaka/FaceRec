@@ -19,7 +19,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onClick"
-            android:text="Register" />
+            android:text="Recognize"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+
+            android:background="@drawable/buttonshape"
+            android:shadowColor="#23C9DB"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"/>
 
         <Space
             android:layout_width="match_parent"
@@ -30,7 +38,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onClick"
-            android:text="Recognize" />
+            android:text="Register"
+
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+
+            android:background="@drawable/buttonshape"
+            android:shadowColor="#23C9DB"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"/>
 
         <Space
             android:layout_width="match_parent"
@@ -41,7 +58,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onClick"
-            android:text="DataBase" />
+            android:text="DataBase"
+
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+
+            android:background="@drawable/buttonshape"
+            android:shadowColor="#23C9DB"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="5"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -71,7 +71,12 @@ public class MainActivity extends AppCompatActivity {
         Intent intent2 = new Intent(this, DetectPage.class);
         switch (v.getId()) {
             case R.id.btnRegister:
-                startActivityForResult(intent, 1);
+                if(Methods.isTrained()){
+                    startActivityForResult(intent, 1);
+                }
+                else {
+                    Toast.makeText(this, "You need to train first", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
             case R.id.btnRecognise:

@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -152,25 +153,18 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
         mOpenCvCameraView.setCameraIndex(mCameraId);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
-        ToggleButton mFlipCamera = findViewById(R.id.toggle_camera);
-        mFlipCamera.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ImageButton mFlipCamera = findViewById(R.id.btnMode);
+        mFlipCamera.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    mCameraId = 0;
-                    mOpenCvCameraView.disableView();
-                    mOpenCvCameraView.setCameraIndex(mCameraId);
-                    mOpenCvCameraView.enableView();
-                } else {
-                    mCameraId = 1;
-                    mOpenCvCameraView.disableView();
-                    mOpenCvCameraView.setCameraIndex(1);
-                    mOpenCvCameraView.enableView();
-                }
+            public void onClick(View v) {
+                if(mCameraId ==1 ) mCameraId = 0; else mCameraId = 1;
+                mOpenCvCameraView.disableView();
+                mOpenCvCameraView.setCameraIndex(mCameraId);
+                mOpenCvCameraView.enableView();
             }
         });
 
-        Button mBackButton = findViewById(R.id.back_button);
+        ImageButton mBackButton = findViewById(R.id.btnRecognize);
         mBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -195,6 +189,7 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
         }.execute();
 
     }
+
 
     @Override
     public void onCameraViewStarted(int width, int height) {
@@ -262,7 +257,7 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
                     name =  Methods.getPhotoName(predictedLabel);
                 }
 
-                Log.d(TAG, "Closest picture: №" + name);
+                Log.d(TAG, "Closest picture: № " + predictedLabel + " Name: " + name);
 
                 result = "Person name: " + name;
             }catch (Exception e) {
