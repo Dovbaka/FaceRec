@@ -202,7 +202,7 @@ public class DetectPage extends Activity
     private void capturePhoto(Mat rgbaMat) {
         try {
             String text = nameText.getText().toString();
-            //Більше фото за заданий максимум в Класі Methods не зробити
+
             Methods.takePhoto(Methods.numPhotos() + 1, rgbaMat.clone(), cascadeClassifier, absoluteFaceSize, text);
         }catch (Exception e) {
             e.printStackTrace();
@@ -214,9 +214,9 @@ public class DetectPage extends Activity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                int remainingPhotos = Methods.PHOTOS_TRAIN_QTY - Methods.numPhotos();
+                int remainingPhotos =/* Methods.PHOTOS_TRAIN_QTY - */Methods.numPhotos();
                 if (remainingPhotos > 0) {
-                    Toast.makeText(getBaseContext(), "You need " + remainingPhotos + " more photo(s)", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(),  remainingPhotos + " photo(s) in DB", Toast.LENGTH_SHORT).show();
                 }else {
                     Toast.makeText(DetectPage.this, "You took max number of photos", Toast.LENGTH_SHORT).show();
                 }
@@ -225,9 +225,9 @@ public class DetectPage extends Activity
     }
 
     private void train() {
-        int remainingPhotos = Methods.PHOTOS_TRAIN_QTY - Methods.numPhotos();
-        if (remainingPhotos > 0) {
-            Toast.makeText(this, "You need " + remainingPhotos + " more photo(s)", Toast.LENGTH_SHORT).show();
+        int remainingPhotos = /*Methods.PHOTOS_TRAIN_QTY -*/ Methods.numPhotos();
+        if (remainingPhotos < 2) {
+            Toast.makeText(this, "You need at least two persons", Toast.LENGTH_SHORT).show();
             return;
         }else if (Methods.isTrained()) {
             Toast.makeText(this, "Already trained", Toast.LENGTH_SHORT).show();

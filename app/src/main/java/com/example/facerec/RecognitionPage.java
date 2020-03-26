@@ -31,6 +31,7 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
@@ -50,14 +51,14 @@ import static com.example.facerec.Methods.THRESHOLD;
 import static org.bytedeco.javacpp.opencv_imgproc.equalizeHist;
 import static org.bytedeco.javacpp.opencv_imgproc.resize;
 
-public class RecognitionPage extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class RecognitionPage extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener {
 
     private static final String TAG = "LOGS";
     private CameraBridgeViewBase mOpenCvCameraView;
     private CascadeClassifier mFaceDetector;
     private File mCascadeFile;
-    private Mat mRgba, mGray;
-    private int mAbsoluteFaceSize = 0;
+    private Mat grayscaleImage;
+    private int absoluteFaceSize;
     private opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create();
     private int mCameraId = 1;
     TextView resText;
@@ -193,53 +194,44 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        mGray = new Mat();
-        mRgba = new Mat();
+        grayscaleImage = new Mat(height, width, CvType.CV_8UC4);
+
+        // Обличчя становитиме 20% висоти екрана
+        absoluteFaceSize = (int) (height * 0.2);
+
     }
 
     @Override
     public void onCameraViewStopped() {
-        mGray.release();
-        mRgba.release();
     }
 
     @Override
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-
-        mRgba = inputFrame.rgba();
-        mGray = inputFrame.gray();
+    public Mat onCameraFrame(Mat aInputFrame) {
 
         //Підбір розміру
-        if (mAbsoluteFaceSize == 0) {
-            int height = mGray.rows();
-            float mRelativeFaceSize = 0.2f;
-            if (Math.round(height * mRelativeFaceSize) > 0) {
-                mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize);
-            }
-        }
+
+        Imgproc.cvtColor(aInputFrame, grayscaleImage, Imgproc.COLOR_RGBA2GRAY);
 
         MatOfRect faces = new MatOfRect();
 
         //Викорсання створеного каскаду
         if (mFaceDetector != null) {
-            mFaceDetector.detectMultiScale(mGray, faces, 1.1, 5, 2,
-                    new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
+            mFaceDetector.detectMultiScale(grayscaleImage, faces, 1.1, 4, 2,
+                    new Size(absoluteFaceSize, absoluteFaceSize), new Size());
         }else {
             Log.e(TAG, "Detection is not selected!");
         }
 
-
         //Малює квадрат
         Rect[] facesArray = faces.toArray();
-        for (int i = 0; i < facesArray.length; i++) {
-            Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0, 255), 3);
-        }
+        for (Rect face : facesArray) {
+            Imgproc.rectangle(aInputFrame, face.tl(), face.br(), new Scalar(0, 255, 0, 255), 5);}
 
         //Якщо 1 лице
         if (facesArray.length == 1) {
             try {
                 //Конверція OpenCV Mat в JavaCV Mat
-                opencv_core.Mat javaCvMat = new opencv_core.Mat((Pointer) null) {{address = mGray.getNativeObjAddr();}};
+                opencv_core.Mat javaCvMat = new opencv_core.Mat((Pointer) null) {{address = grayscaleImage.getNativeObjAddr();}};
                 //Ресайз
                 resize(javaCvMat, javaCvMat, new opencv_core.Size(Methods.IMG_WIDTH, Methods.IMG_HEIGHT));
                 equalizeHist(javaCvMat, javaCvMat);
@@ -251,19 +243,27 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
                 double acceptanceLevel = confidence.get(0);
                 String name;
                 Log.d(TAG, "Prediction completed, predictedLabel: " + predictedLabel + ", acceptanceLevel: " + acceptanceLevel);
-                if (predictedLabel == -1 || acceptanceLevel >= THRESHOLD) {
+                if (predictedLabel == -1 || acceptanceLevel >= 78.0D) {
                     name = "Unknown";
+                    Log.d(TAG, "Closest picture: № " + predictedLabel + " Name: " + name);
                 } else {
                     name =  Methods.getPhotoName(predictedLabel);
+                    Log.d(TAG, "Closest picture: № " + predictedLabel + " Name: " + name);
                 }
 
-                Log.d(TAG, "Closest picture: № " + predictedLabel + " Name: " + name);
+                //Отображение текста
+                for (Rect face : facesArray) {
+                    int posX = (int) Math.max(face.tl().x, 0);
+                    int posY = (int) Math.max(face.tl().y, 0);
+                    Imgproc.putText(aInputFrame, name, new Point(posX, posY),
+                            Core.FONT_HERSHEY_COMPLEX, 1.5, new Scalar(0, 255, 0, 255),5);
+                }
 
                 result = "Person name: " + name;
             }catch (Exception e) {
                 Log.d(TAG, e.getLocalizedMessage(), e);
             }
         }
-        return mRgba;
+        return aInputFrame;
     }
 }

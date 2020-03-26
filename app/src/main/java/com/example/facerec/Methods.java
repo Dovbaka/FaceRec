@@ -27,9 +27,9 @@ public class Methods {
 
     public static final String TAG = "LOGS";
     public static final String FACE_PICS = "FacePics";
-    public static final int IMG_WIDTH = 92;
-    public static final int IMG_HEIGHT = 112;
-    public static final int PHOTOS_TRAIN_QTY = 25;
+    public static final int IMG_WIDTH = 360;
+    public static final int IMG_HEIGHT = 360;
+    //public static final int PHOTOS_TRAIN_QTY = 25;
     public static final double THRESHOLD = 130.0D;
     public static final String LBPH_CLASSIFIER = "lbphClassifier.xml";
     public static final File ROOT = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), FACE_PICS);
@@ -66,7 +66,7 @@ public class Methods {
                 };
                 File[] photosArray = facePicsPath.listFiles(photoFilter);
                 File[] train = facePicsPath.listFiles(trainFilter);
-                return photosArray != null && train != null && photosArray.length == PHOTOS_TRAIN_QTY && train.length > 0;
+                return photosArray != null && train != null && /*photosArray.length == PHOTOS_TRAIN_QTY && */train.length > 0;
             } else {
                 return false;
             }
@@ -122,7 +122,7 @@ public class Methods {
             Log.d(TAG, Label);
             int intLabel = Integer.parseInt(Label);
 
-            //Ресайз 92x112
+            //Ресайз
             resize(photo, photo, new opencv_core.Size(IMG_WIDTH, IMG_HEIGHT));
 
             equalizeHist(photo, photo);
@@ -155,7 +155,7 @@ public class Methods {
         File[] photosArray = facePicsPath.listFiles(photoFilter);
 
         if (photosArray != null) {
-            return String.valueOf(photosArray[index].getName().split("\\.")[0]).replaceAll("[0-9]*", "").replace("-","");
+            return String.valueOf(photosArray[index-1].getName().split("\\.")[0]).replaceAll("[0-9]*", "").replace("-","");
         }
         return "None";
     }
@@ -191,13 +191,13 @@ public class Methods {
 
             Imgproc.equalizeHist(capturedFace, capturedFace);
 
-            if (photoNumber <= PHOTOS_TRAIN_QTY) {
+            //if (photoNumber <= PHOTOS_TRAIN_QTY) {
                 File savePhoto = new File(facePicsPath, String.format( name + "-%d.png", photoNumber));
                 savePhoto.createNewFile();
                 //Зберігає фото в FacePics
                 Imgcodecs.imwrite(savePhoto.getAbsolutePath(), capturedFace);
                 Log.i(TAG, "PIC PATH: " + savePhoto.getAbsolutePath());
-            }
+            //}
         }
     }
 }
