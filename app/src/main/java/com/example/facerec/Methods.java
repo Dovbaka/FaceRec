@@ -27,21 +27,33 @@ public class Methods {
 
     public static final String TAG = "LOGS";
     public static final String FACE_PICS = "FacePics";
-    public static final int IMG_WIDTH = 360;
-    public static final int IMG_HEIGHT = 360;
-    //public static final int PHOTOS_TRAIN_QTY = 25;
+    public static final int IMG_WIDTH = 512;
+    public static final int IMG_HEIGHT = 512;
     public static final double THRESHOLD = 130.0D;
-    public static final String LBPH_CLASSIFIER = "lbphClassifier.xml";
+    public static final String CLASSIFIER = "Classifier.xml";
     public static final File ROOT = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), FACE_PICS);
 
     //Видалення всіх даних з FacePics
-    public static void reset() {
+    public static void reset(final String filter) { // порожній filter видалить всі файли з FacePics
         File facePicsPath = new File(String.valueOf(ROOT));
-
         if (facePicsPath.exists()) {
-            File[] facePicsArray = facePicsPath.listFiles();
-            for (File facepicsTmp : facePicsArray) {
-                facepicsTmp.delete();
+            if(filter != ""){
+                FilenameFilter photoFilter = new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.endsWith(filter); // .тип файлів для видалення
+                    }
+                };
+                File[] facePicsArray = facePicsPath.listFiles(photoFilter);
+                for (File facepicsTmp : facePicsArray) {
+                    facepicsTmp.delete();
+                }
+            }
+            else{
+                File[] facePicsArray = facePicsPath.listFiles();
+                for (File facepicsTmp : facePicsArray) {
+                    facepicsTmp.delete();
+                }
             }
         }
     }
@@ -66,7 +78,7 @@ public class Methods {
                 };
                 File[] photosArray = facePicsPath.listFiles(photoFilter);
                 File[] train = facePicsPath.listFiles(trainFilter);
-                return photosArray != null && train != null && /*photosArray.length == PHOTOS_TRAIN_QTY && */train.length > 0;
+                return photosArray != null && train != null && train.length > 0;
             } else {
                 return false;
             }
@@ -81,7 +93,6 @@ public class Methods {
         File facePicsPath = new File(String.valueOf(ROOT));
 
         if (facePicsPath.exists()) {
-            //Log.d(TAG, "DIR: " + String.valueOf(ROOT));
             FilenameFilter photoFilter = new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
@@ -134,7 +145,7 @@ public class Methods {
         //Ствоернення та запис тринувального файлу
         opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create();
         mLBPHFaceRecognizer.train(photosMatVector, labels);
-        File trainedFaceRecognizerModel = new File(facePicsPath, LBPH_CLASSIFIER);
+        File trainedFaceRecognizerModel = new File(facePicsPath, CLASSIFIER);
         trainedFaceRecognizerModel.createNewFile();
         mLBPHFaceRecognizer.write(trainedFaceRecognizerModel.getAbsolutePath());
         return true;
@@ -191,13 +202,11 @@ public class Methods {
 
             Imgproc.equalizeHist(capturedFace, capturedFace);
 
-            //if (photoNumber <= PHOTOS_TRAIN_QTY) {
-                File savePhoto = new File(facePicsPath, String.format( name + "-%d.png", photoNumber));
-                savePhoto.createNewFile();
-                //Зберігає фото в FacePics
-                Imgcodecs.imwrite(savePhoto.getAbsolutePath(), capturedFace);
-                Log.i(TAG, "PIC PATH: " + savePhoto.getAbsolutePath());
-            //}
+            File savePhoto = new File(facePicsPath, String.format( name + "-%d.png", photoNumber));
+            savePhoto.createNewFile();
+            //Зберігає фото в FacePics
+            Imgcodecs.imwrite(savePhoto.getAbsolutePath(), capturedFace);
+
         }
     }
 }

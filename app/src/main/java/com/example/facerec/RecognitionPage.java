@@ -46,7 +46,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static com.example.facerec.Methods.THRESHOLD;
 
 import static org.bytedeco.javacpp.opencv_imgproc.equalizeHist;
 import static org.bytedeco.javacpp.opencv_imgproc.resize;
@@ -61,8 +60,8 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
     private int absoluteFaceSize;
     private opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create();
     private int mCameraId = 1;
-    TextView resText;
     String result = "Unknown";
+    String name = "Unknown";
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -179,7 +178,7 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
             protected Void doInBackground(Void... voids) {
                 try {
                     File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), Methods.FACE_PICS);
-                    File f = new File(folder, Methods.LBPH_CLASSIFIER);
+                    File f = new File(folder, Methods.CLASSIFIER);
                     Log.i(TAG, "Classifier = " + f);
                     mLBPHFaceRecognizer.read(f.getAbsolutePath());
                 }catch (Exception e) {
@@ -241,12 +240,13 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
                 mLBPHFaceRecognizer.predict(javaCvMat, label, confidence);
                 int predictedLabel = label.get(0);
                 double acceptanceLevel = confidence.get(0);
-                String name;
+
                 Log.d(TAG, "Prediction completed, predictedLabel: " + predictedLabel + ", acceptanceLevel: " + acceptanceLevel);
                 if (predictedLabel == -1 || acceptanceLevel >= 78.0D) {
                     name = "Unknown";
                     Log.d(TAG, "Closest picture: № " + predictedLabel + " Name: " + name);
                 } else {
+
                     name =  Methods.getPhotoName(predictedLabel);
                     Log.d(TAG, "Closest picture: № " + predictedLabel + " Name: " + name);
                 }
@@ -255,7 +255,7 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
                 for (Rect face : facesArray) {
                     int posX = (int) Math.max(face.tl().x, 0);
                     int posY = (int) Math.max(face.tl().y, 0);
-                    Imgproc.putText(aInputFrame, name, new Point(posX, posY),
+                    Imgproc.putText(aInputFrame, name + " Acceptence " + String.format("%.2f", acceptanceLevel), new Point(posX, posY),
                             Core.FONT_HERSHEY_COMPLEX, 1.5, new Scalar(0, 255, 0, 255),5);
                 }
 

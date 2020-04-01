@@ -1,7 +1,10 @@
 package com.example.facerec;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,6 +29,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import static com.example.facerec.Methods.reset;
 
 public class DetectPage extends Activity
         implements CvCameraViewListener {
@@ -91,12 +96,8 @@ public class DetectPage extends Activity
         findViewById(R.id.btnDelete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    Methods.reset();
-                    Toast.makeText(DetectPage.this, "Data cleared", Toast.LENGTH_SHORT).show();
-                }catch (Exception e) {
-                    Log.d(TAG, e.getLocalizedMessage(), e);
-                }
+                showDialog(0);
+
             }
         });
 
@@ -193,7 +194,7 @@ public class DetectPage extends Activity
     }
 
     public void swapCamera(View v) {
-        if(mCameraId ==1 ) mCameraId = 0; else mCameraId = 1; //bitwise not operation to flip 1 to 0 and vice versa
+        if(mCameraId ==1 ) mCameraId = 0; else mCameraId = 1;
         javaCameraView.disableView();
         javaCameraView.setCameraIndex(mCameraId);
         javaCameraView.enableView();
@@ -225,12 +226,14 @@ public class DetectPage extends Activity
     }
 
     private void train() {
-        int remainingPhotos = /*Methods.PHOTOS_TRAIN_QTY -*/ Methods.numPhotos();
+        int remainingPhotos =  Methods.numPhotos();
         if (remainingPhotos < 2) {
             Toast.makeText(this, "You need at least two persons", Toast.LENGTH_SHORT).show();
             return;
         }else if (Methods.isTrained()) {
-            Toast.makeText(this, "Already trained", Toast.LENGTH_SHORT).show();
+            reset(".xml"); // видаляєм попередній класифікатор і перетреновуєм
+            //Toast.makeText(this, "Retraining", Toast.LENGTH_SHORT).show();
+            train();
             return;
         }
 
@@ -263,5 +266,33 @@ public class DetectPage extends Activity
             }
         }.execute();
     }
+
+    //Діалогове вікно для підтвердження видалення
+    protected Dialog onCreateDialog(int id) {
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("Warning!");
+        adb.setMessage("Are you sure you want to delete all operations?");
+        adb.setIcon(android.R.drawable.ic_delete);
+        adb.setNegativeButton("Delete", myClickListener);
+        adb.setPositiveButton("Back", myClickListener);
+        return adb.create();
+
+    }
+    DialogInterface.OnClickListener myClickListener = new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case Dialog.BUTTON_POSITIVE: // Back
+                    break;
+                case Dialog.BUTTON_NEGATIVE: // Delete
+                    try {
+                        reset("");
+                        Toast.makeText(DetectPage.this, "Data cleared", Toast.LENGTH_SHORT).show();
+                    }catch (Exception e) {
+                        Log.d(TAG, e.getLocalizedMessage(), e);
+                    }
+                    break;
+            }
+        }
+    };
 
 }
