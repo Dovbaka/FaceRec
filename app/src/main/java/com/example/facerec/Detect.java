@@ -8,17 +8,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import org.bytedeco.javacpp.opencv_face;
 import org.opencv.android.*;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.core.*;
@@ -27,12 +23,11 @@ import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 import static com.example.facerec.Methods.reset;
 
-public class DetectPage extends Activity
+public class Detect extends Activity
         implements CvCameraViewListener {
 
     JavaCameraView javaCameraView;
@@ -85,10 +80,10 @@ public class DetectPage extends Activity
             @Override
             public void onClick(View v) {
                 if (Methods.isTrained()) {
-                    Intent faceRecognizerActivityIntent = new Intent(DetectPage.this, RecognitionPage.class);
+                    Intent faceRecognizerActivityIntent = new Intent(Detect.this, Recognition.class);
                     startActivity(faceRecognizerActivityIntent);
                 }else {
-                    Toast.makeText(DetectPage.this, "You need to train first", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Detect.this, "You need to train first", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -219,7 +214,7 @@ public class DetectPage extends Activity
                 if (remainingPhotos > 0) {
                     Toast.makeText(getBaseContext(),  remainingPhotos + " photo(s) in DB", Toast.LENGTH_SHORT).show();
                 }else {
-                    Toast.makeText(DetectPage.this, "You took max number of photos", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Detect.this, "You took max number of photos", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -256,9 +251,9 @@ public class DetectPage extends Activity
                 super.onPostExecute(aVoid);
                 try {
                     if (Methods.isTrained()) {
-                        Toast.makeText(DetectPage.this, "Training successful", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Detect.this, "Training successful", Toast.LENGTH_SHORT).show();
                     }else {
-                        Toast.makeText(DetectPage.this, "Training unsuccessful", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Detect.this, "Training unsuccessful", Toast.LENGTH_SHORT).show();
                     }
                 }catch (Exception e) {
                     Log.d(TAG, e.getLocalizedMessage(), e);
@@ -286,7 +281,7 @@ public class DetectPage extends Activity
                 case Dialog.BUTTON_NEGATIVE: // Delete
                     try {
                         reset("");
-                        Toast.makeText(DetectPage.this, "Data cleared", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Detect.this, "Data cleared", Toast.LENGTH_SHORT).show();
                     }catch (Exception e) {
                         Log.d(TAG, e.getLocalizedMessage(), e);
                     }

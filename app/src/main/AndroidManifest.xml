@@ -3,8 +3,8 @@
     package="com.example.facerec">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -13,18 +13,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".List"></activity>
         <activity
-            android:name=".DetectPage"
+            android:name=".Detect"
             android:screenOrientation="landscape" />
         <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".RecognitionPage"
-            android:screenOrientation="landscape" />
+            android:name=".Recognition"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

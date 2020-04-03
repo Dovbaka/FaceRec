@@ -2,24 +2,21 @@ package com.example.facerec;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import org.bytedeco.javacpp.DoublePointer;
 import org.bytedeco.javacpp.IntPointer;
@@ -45,14 +42,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
+import static com.example.facerec.Methods.reset;
 import static org.bytedeco.javacpp.opencv_imgproc.equalizeHist;
 import static org.bytedeco.javacpp.opencv_imgproc.resize;
 
-public class RecognitionPage extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener {
+public class Recognition extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener {
 
     private static final String TAG = "LOGS";
+    DataBase dbHelper;
     private CameraBridgeViewBase mOpenCvCameraView;
     private CascadeClassifier mFaceDetector;
     private File mCascadeFile;
@@ -153,6 +154,8 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
         mOpenCvCameraView.setCameraIndex(mCameraId);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
+        dbHelper = new DataBase(this);
+
         ImageButton mFlipCamera = findViewById(R.id.btnMode);
         mFlipCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -164,11 +167,11 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
             }
         });
 
-        ImageButton mBackButton = findViewById(R.id.btnRecognize);
-        mBackButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton RecognizeBtn = findViewById(R.id.btnRecognize);
+        RecognizeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(RecognitionPage.this, result, Toast.LENGTH_SHORT).show();
+                showDialog(0);
             }
         });
 
@@ -265,5 +268,41 @@ public class RecognitionPage extends AppCompatActivity implements CameraBridgeVi
             }
         }
         return aInputFrame;
+    }
+
+    protected Dialog onCreateDialog(int id) {
+        String person = name;
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("Confirmation");
+        adb.setMessage("You confirm that you are " + person + "?");
+        adb.setNegativeButton("NO", myClickListener);
+        adb.setPositiveButton("YES", myClickListener);
+        return adb.create();
+
+    }
+    DialogInterface.OnClickListener myClickListener = new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case Dialog.BUTTON_POSITIVE:
+                    InsertToDB();
+                    break;
+                case Dialog.BUTTON_NEGATIVE:
+                    break;
+            }
+        }
+    };
+
+    public void InsertToDB (){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SimpleDateFormat DateS = new SimpleDateFormat("dd.MM.yyyy");
+        String DateNow = DateS.format(new Date());
+        ContentValues cv = new ContentValues();
+        Log.d(TAG, "--- Insert in table: ---");
+        cv.put("name", name);
+        cv.put("date", DateNow);
+        long rowID = db.insert("FaceRec_DB", null, cv);
+        Log.d(TAG, "row inserted, ID = " + rowID);
+        dbHelper.close();
+        finish();
     }
 }

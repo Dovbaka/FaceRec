@@ -1,13 +1,9 @@
 package com.example.facerec;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -19,7 +15,6 @@ import androidx.core.content.ContextCompat;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.HashMap;
@@ -67,8 +62,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClick(View v) {
-        Intent intent = new Intent(this, RecognitionPage.class);
-        Intent intent2 = new Intent(this, DetectPage.class);
+        Intent intent = new Intent(this, Recognition.class);
+        Intent intent2 = new Intent(this, Detect.class);
+        Intent intent3 = new Intent(this, List.class);
         switch (v.getId()) {
             case R.id.btnRegister:
                 if(Methods.isTrained()){
@@ -81,6 +77,10 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.btnRecognise:
                 startActivityForResult(intent2, 2);
+                break;
+
+            case R.id.btnDB:
+                startActivityForResult(intent3, 2);
                 break;
         }
     }
