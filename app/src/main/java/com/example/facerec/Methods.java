@@ -34,7 +34,8 @@ public class Methods {
     public static final File ROOT = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), FACE_PICS);
 
     //Видалення всіх даних з FacePics
-    public static void reset(final String filter) { // порожній filter видалить всі файли з FacePics
+    public static void reset(final String filter) {// порожній filter видалить всі файли з FacePics
+        Log.d(TAG,"Try to delete stage 1");
         File facePicsPath = new File(String.valueOf(ROOT));
         if (facePicsPath.exists()) {
             if(filter != ""){
@@ -105,7 +106,7 @@ public class Methods {
         return 0;
     }
 
-    //Метод навчання моделі розпізнавання //Потрібна доробка
+    //Метод навчання моделі розпізнавання
     public static boolean train() throws Exception {
         File facePicsPath = new File(String.valueOf(ROOT));
 
@@ -150,7 +151,7 @@ public class Methods {
         mLBPHFaceRecognizer.write(trainedFaceRecognizerModel.getAbsolutePath());
         return true;
     }
-
+    //Отрмення імені зображення
     public static String getPhotoName(int index){
         File facePicsPath = new File(String.valueOf(ROOT));
 
@@ -176,7 +177,7 @@ public class Methods {
                                  CascadeClassifier cascadeClassifier,
                                  int absoluteFaceSize,
                                  String name) throws Exception {
-
+        Log.d(TAG,"Try to take stage 1");
         File facePicsPath = new File(String.valueOf(ROOT));
         if (facePicsPath.exists() && !facePicsPath.isDirectory())
             facePicsPath.delete();
@@ -188,7 +189,7 @@ public class Methods {
         Imgproc.cvtColor(rgbaMat, grayMat, Imgproc.COLOR_RGBA2GRAY);
         MatOfRect faces = new MatOfRect();
 
-        //Шукає лиця
+        //Пошук обличчя
         if (cascadeClassifier != null) {
             cascadeClassifier.detectMultiScale(rgbaMat, faces, 1.1, 4, 2,
                     new Size(absoluteFaceSize, absoluteFaceSize), new Size());
@@ -199,6 +200,7 @@ public class Methods {
             Mat capturedFace = new Mat(grayMat, face);
 
             Imgproc.resize(capturedFace, capturedFace, new Size(IMG_WIDTH, IMG_HEIGHT));
+            Imgproc.GaussianBlur(capturedFace,capturedFace, new Size(3, 3), 0);
 
             Imgproc.equalizeHist(capturedFace, capturedFace);
 

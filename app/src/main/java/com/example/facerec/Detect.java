@@ -92,7 +92,6 @@ public class Detect extends Activity
             @Override
             public void onClick(View v) {
                 showDialog(0);
-
             }
         });
 
@@ -211,7 +210,7 @@ public class Detect extends Activity
             @Override
             public void run() {
                 int remainingPhotos =/* Methods.PHOTOS_TRAIN_QTY - */Methods.numPhotos();
-                if (remainingPhotos > 0) {
+                if (remainingPhotos >= 0) {
                     Toast.makeText(getBaseContext(),  remainingPhotos + " photo(s) in DB", Toast.LENGTH_SHORT).show();
                 }else {
                     Toast.makeText(Detect.this, "You took max number of photos", Toast.LENGTH_SHORT).show();

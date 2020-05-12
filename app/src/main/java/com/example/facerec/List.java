@@ -32,7 +32,7 @@ public class List extends AppCompatActivity {
     final String ATTRIBUTE_NAME_IMAGE = "image";
 
     Cursor c = null;
-
+    //Оновлення списку
     public void ListUpdate(){
         DecimalFormat format = new DecimalFormat("#.##");
         dbHelper = new DataBase(this);
@@ -69,7 +69,6 @@ public class List extends AppCompatActivity {
                 R.layout.item, from, to);
         lvData = (ListView) findViewById(R.id.lvData);
         lvData.setAdapter(sAdapter);
-
     }
 
     @Override
@@ -86,6 +85,7 @@ public class List extends AppCompatActivity {
         menu.add(0, CM_DELETE_ID, 0,"Delete Operation");
     }
 
+    //Вибір елементу списку
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == CM_DELETE_ID) {
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();

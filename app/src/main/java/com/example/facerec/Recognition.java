@@ -76,10 +76,10 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
                         @Override
                         protected Void doInBackground(Void... voids) {
                             try {
-                                //Loading detection classifier from resources
-                                InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+                                //Завантаження класифікатору
+                                InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_alt2);
                                 File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-                                mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+                                mCascadeFile = new File(cascadeDir, "haarcascade_frontalface_alt2.xml");
                                 FileOutputStream os = new FileOutputStream(mCascadeFile);
 
                                 byte[] buffer = new byte[4096];
@@ -239,6 +239,8 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
                 resize(javaCvMat, javaCvMat, new opencv_core.Size(Methods.IMG_WIDTH, Methods.IMG_HEIGHT));
                 equalizeHist(javaCvMat, javaCvMat);
 
+
+
                 IntPointer label = new IntPointer(1);
                 DoublePointer confidence = new DoublePointer(1);
                 mLBPHFaceRecognizer.predict(javaCvMat, label, confidence);
@@ -271,6 +273,7 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
         return aInputFrame;
     }
 
+    //Діалог підтвердження персони
     protected Dialog onCreateDialog(int id) {
         String person = name;
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
@@ -293,6 +296,7 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
         }
     };
 
+    //Запис в БД
     public void InsertToDB (){
         SimpleDateFormat DateS = new SimpleDateFormat("dd.MM.yyyy");
         String DateNow = DateS.format(new Date());
@@ -312,6 +316,7 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
         }
     }
 
+    //Перевірка існування запису
     private boolean isRecordExist(String tableName, String field1, String value1,
     String field2, String value2) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();

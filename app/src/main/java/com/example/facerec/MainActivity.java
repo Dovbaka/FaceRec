@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //Запит дозвілу для камери та файлів
     private void requirePermissions() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 11);
