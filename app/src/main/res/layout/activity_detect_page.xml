@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Detect">
+    tools:context=".Registration">
 
     <org.opencv.android.JavaCameraView
         android:id="@+id/javaCamera"
@@ -23,8 +23,7 @@
         android:layout_marginBottom="120dp"
         android:background="@android:color/transparent"
         android:onClick="swapCamera"
-        android:tint="#C8C8C8"
-        android:src="@android:drawable/ic_popup_sync"
+        android:src="@drawable/ic_autorenew_black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -35,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:background="@android:color/transparent"
-        android:src="@android:drawable/ic_menu_camera"
+        android:src="@drawable/ic_camera"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -47,7 +46,7 @@
         android:layout_marginTop="120dp"
         android:layout_marginEnd="32dp"
         android:background="@android:color/transparent"
-        android:src="@android:drawable/ic_menu_save"
+        android:src="@drawable/ic_train"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -58,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="240dp"
         android:background="@android:color/transparent"
-        android:src="@android:drawable/ic_menu_delete"
+        android:src="@drawable/ic_delete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/btnCapture"
         app:layout_constraintTop_toTopOf="parent" />
@@ -70,7 +69,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="240dp"
         android:background="@android:color/transparent"
-        android:src="@android:drawable/ic_menu_slideshow"
+        android:src="@drawable/ic_portrait"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

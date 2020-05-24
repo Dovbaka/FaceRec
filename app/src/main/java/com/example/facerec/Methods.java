@@ -119,6 +119,7 @@ public class Methods {
                 return name.endsWith(".png");
             }
         };
+
         File[] photosArray = facePicsPath.listFiles(photoFilter);
         opencv_core.MatVector photosMatVector = new opencv_core.MatVector(photosArray.length);
         opencv_core.Mat labels = new opencv_core.Mat(photosArray.length, 1, CV_32SC1);
@@ -126,7 +127,6 @@ public class Methods {
         int counter = 0;
 
         for (File image : photosArray) {
-            //Переведення в сірий
             opencv_core.Mat photo = imread(image.getAbsolutePath(), opencv_imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
 
             //Виділення номеру фото
@@ -138,6 +138,7 @@ public class Methods {
             resize(photo, photo, new opencv_core.Size(IMG_WIDTH, IMG_HEIGHT));
 
             equalizeHist(photo, photo);
+
             photosMatVector.put(counter, photo);
             intBuffer.put(counter, intLabel);
             counter++;
@@ -177,8 +178,11 @@ public class Methods {
                                  CascadeClassifier cascadeClassifier,
                                  int absoluteFaceSize,
                                  String name) throws Exception {
+
         Log.d(TAG,"Try to take stage 1");
+
         File facePicsPath = new File(String.valueOf(ROOT));
+        //Перевірка наявності папки для зображень
         if (facePicsPath.exists() && !facePicsPath.isDirectory())
             facePicsPath.delete();
         if (!facePicsPath.exists())
@@ -197,11 +201,10 @@ public class Methods {
 
         Rect[] detectedFacesArray = faces.toArray();
         for (Rect face : detectedFacesArray) {
-            Mat capturedFace = new Mat(grayMat, face);
 
+            Mat capturedFace = new Mat(grayMat, face);
             Imgproc.resize(capturedFace, capturedFace, new Size(IMG_WIDTH, IMG_HEIGHT));
             Imgproc.GaussianBlur(capturedFace,capturedFace, new Size(3, 3), 0);
-
             Imgproc.equalizeHist(capturedFace, capturedFace);
 
             File savePhoto = new File(facePicsPath, String.format( name + "-%d.png", photoNumber));

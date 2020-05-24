@@ -54,6 +54,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.resize;
 public class Recognition extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener {
 
     private static final String TAG = "LOGS";
+    Context context = this;
     DataBase dbHelper;
     private CameraBridgeViewBase mOpenCvCameraView;
     private CascadeClassifier mFaceDetector;
@@ -239,8 +240,6 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
                 resize(javaCvMat, javaCvMat, new opencv_core.Size(Methods.IMG_WIDTH, Methods.IMG_HEIGHT));
                 equalizeHist(javaCvMat, javaCvMat);
 
-
-
                 IntPointer label = new IntPointer(1);
                 DoublePointer confidence = new DoublePointer(1);
                 mLBPHFaceRecognizer.predict(javaCvMat, label, confidence);
@@ -248,11 +247,10 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
                 double acceptanceLevel = confidence.get(0);
 
                 Log.d(TAG, "Prediction completed, predictedLabel: " + predictedLabel + ", acceptanceLevel: " + acceptanceLevel);
-                if (predictedLabel == -1 || acceptanceLevel >= 78.0D) {
+                if (predictedLabel == -1 || acceptanceLevel >= 88.0D) {
                     name = "Unknown";
                     Log.d(TAG, "Closest picture: № " + predictedLabel + " Name: " + name);
                 } else {
-
                     name =  Methods.getPhotoName(predictedLabel);
                     Log.d(TAG, "Closest picture: № " + predictedLabel + " Name: " + name);
                 }
@@ -288,46 +286,11 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
-                    InsertToDB();
+                    dbHelper.InsertToDB(name, context);
                     break;
                 case Dialog.BUTTON_NEGATIVE:
                     break;
             }
         }
     };
-
-    //Запис в БД
-    public void InsertToDB (){
-        SimpleDateFormat DateS = new SimpleDateFormat("dd.MM.yyyy");
-        String DateNow = DateS.format(new Date());
-        if(!isRecordExist("FaceRec_DB", "name", name, "date", DateNow)){
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            ContentValues cv = new ContentValues();
-            Log.d("DBLOG", "--- Insert in table: ---");
-            cv.put("name", name);
-            cv.put("date", DateNow);
-            long rowID = db.insert("FaceRec_DB", null, cv);
-            Log.d(TAG, "row inserted, ID = " + rowID);
-            dbHelper.close();
-            finish();
-        }
-        else {
-            Toast.makeText(this, "You are already registered today", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    //Перевірка існування запису
-    private boolean isRecordExist(String tableName, String field1, String value1,
-    String field2, String value2) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String query = "SELECT * FROM " + tableName + " WHERE " + field1 + " = '" + value1 + "' AND " +
-                field2 + " = '" + value2 + "'";
-        Cursor c = db.rawQuery(query, null);
-        if (c.moveToFirst()) {
-            c.close();
-            return true;
-        }
-        c.close();
-        return false;
-    }
 }

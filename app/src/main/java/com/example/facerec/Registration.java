@@ -27,7 +27,7 @@ import java.io.InputStream;
 
 import static com.example.facerec.Methods.reset;
 
-public class Detect extends Activity
+public class Registration extends Activity
         implements CvCameraViewListener {
 
     JavaCameraView javaCameraView;
@@ -80,10 +80,10 @@ public class Detect extends Activity
             @Override
             public void onClick(View v) {
                 if (Methods.isTrained()) {
-                    Intent faceRecognizerActivityIntent = new Intent(Detect.this, Recognition.class);
+                    Intent faceRecognizerActivityIntent = new Intent(Registration.this, Recognition.class);
                     startActivity(faceRecognizerActivityIntent);
                 }else {
-                    Toast.makeText(Detect.this, "You need to train first", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Registration.this, "You need to train first", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -98,7 +98,7 @@ public class Detect extends Activity
         findViewById(R.id.btnTrain).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                train();
+                trainCascade();
             }
         });
     }
@@ -160,7 +160,6 @@ public class Detect extends Activity
     };
 
     private void initializeOpenCVDependencies() {
-
         try {
             // Копіювання кастаду у тимчасовий файл, щоб OpenCV міг його завантажити
             InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_alt2);
@@ -197,7 +196,6 @@ public class Detect extends Activity
     private void capturePhoto(Mat rgbaMat) {
         try {
             String text = nameText.getText().toString();
-
             Methods.takePhoto(Methods.numPhotos() + 1, rgbaMat.clone(), cascadeClassifier, absoluteFaceSize, text);
         }catch (Exception e) {
             e.printStackTrace();
@@ -213,13 +211,13 @@ public class Detect extends Activity
                 if (remainingPhotos >= 0) {
                     Toast.makeText(getBaseContext(),  remainingPhotos + " photo(s) in DB", Toast.LENGTH_SHORT).show();
                 }else {
-                    Toast.makeText(Detect.this, "You took max number of photos", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Registration.this, "You took max number of photos", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
-    private void train() {
+    private void trainCascade() {
         int remainingPhotos =  Methods.numPhotos();
         if (remainingPhotos < 2) {
             Toast.makeText(this, "You need at least two persons", Toast.LENGTH_SHORT).show();
@@ -227,7 +225,7 @@ public class Detect extends Activity
         }else if (Methods.isTrained()) {
             reset(".xml"); // видаляєм попередній класифікатор і перетреновуєм
             //Toast.makeText(this, "Retraining", Toast.LENGTH_SHORT).show();
-            train();
+            trainCascade();
             return;
         }
 
@@ -250,9 +248,9 @@ public class Detect extends Activity
                 super.onPostExecute(aVoid);
                 try {
                     if (Methods.isTrained()) {
-                        Toast.makeText(Detect.this, "Training successful", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Registration.this, "Training successful", Toast.LENGTH_SHORT).show();
                     }else {
-                        Toast.makeText(Detect.this, "Training unsuccessful", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Registration.this, "Training unsuccessful", Toast.LENGTH_SHORT).show();
                     }
                 }catch (Exception e) {
                     Log.d(TAG, e.getLocalizedMessage(), e);
@@ -280,7 +278,7 @@ public class Detect extends Activity
                 case Dialog.BUTTON_NEGATIVE: // Delete
                     try {
                         reset("");
-                        Toast.makeText(Detect.this, "Data cleared", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Registration.this, "Data cleared", Toast.LENGTH_SHORT).show();
                     }catch (Exception e) {
                         Log.d(TAG, e.getLocalizedMessage(), e);
                     }

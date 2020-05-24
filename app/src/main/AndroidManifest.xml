@@ -16,7 +16,7 @@
         <activity android:name=".List"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".Detect"
+            android:name=".Registration"
             android:screenOrientation="landscape" />
         <activity
             android:name=".Recognition"

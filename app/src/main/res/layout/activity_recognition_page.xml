@@ -24,8 +24,7 @@
         android:layout_marginBottom="120dp"
         android:background="@android:color/transparent"
         android:onClick="swapCamera"
-        android:src="@android:drawable/ic_popup_sync"
-        android:tint="#C8C8C8"
+        android:src="@drawable/ic_autorenew_black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -39,6 +38,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_view" />
+        app:srcCompat="@drawable/ic_playlist" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

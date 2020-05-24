@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+
         if (id == R.id.action_settings) {
             return true;
         }
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View v) {
         Intent intent = new Intent(this, Recognition.class);
-        Intent intent2 = new Intent(this, Detect.class);
+        Intent intent2 = new Intent(this, Registration.class);
         Intent intent3 = new Intent(this, List.class);
         switch (v.getId()) {
             case R.id.btnRegister:

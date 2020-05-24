@@ -24,7 +24,7 @@
             android:textSize="20sp"
 
             android:background="@drawable/buttonshape"
-            android:shadowColor="#23C9DB"
+            android:shadowColor="#000000"
             android:shadowDx="0"
             android:shadowDy="0"
             android:shadowRadius="5"/>
@@ -44,7 +44,7 @@
             android:textSize="20sp"
 
             android:background="@drawable/buttonshape"
-            android:shadowColor="#23C9DB"
+            android:shadowColor="#000000"
             android:shadowDx="0"
             android:shadowDy="0"
             android:shadowRadius="5"/>
@@ -64,7 +64,7 @@
             android:textSize="20sp"
 
             android:background="@drawable/buttonshape"
-            android:shadowColor="#23C9DB"
+            android:shadowColor="#000000"
             android:shadowDx="0"
             android:shadowDy="0"
             android:shadowRadius="5"/>
