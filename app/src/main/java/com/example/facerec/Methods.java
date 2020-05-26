@@ -204,7 +204,7 @@ public class Methods {
 
             Mat capturedFace = new Mat(grayMat, face);
             Imgproc.resize(capturedFace, capturedFace, new Size(IMG_WIDTH, IMG_HEIGHT));
-            Imgproc.GaussianBlur(capturedFace,capturedFace, new Size(3, 3), 0);
+            Imgproc.GaussianBlur(capturedFace,capturedFace, new Size(1, 1), 0);
             Imgproc.equalizeHist(capturedFace, capturedFace);
 
             File savePhoto = new File(facePicsPath, String.format( name + "-%d.png", photoNumber));

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.FaceDetector;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -36,6 +37,9 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.face.FaceRecognizer;
+import org.opencv.face.LBPHFaceRecognizer;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
@@ -48,6 +52,7 @@ import java.util.Date;
 
 
 import static com.example.facerec.Methods.reset;
+import static org.bytedeco.javacpp.opencv_imgcodecs.imwrite;
 import static org.bytedeco.javacpp.opencv_imgproc.equalizeHist;
 import static org.bytedeco.javacpp.opencv_imgproc.resize;
 
@@ -61,7 +66,9 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
     private File mCascadeFile;
     private Mat grayscaleImage;
     private int absoluteFaceSize;
-    private opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create();
+    public static final File ROOT = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "FacePics");
+    private opencv_face.FaceRecognizer mLBPHFaceRecognizer = opencv_face.LBPHFaceRecognizer.create(1,8,8,8,123);
+
     private int mCameraId = 1;
     String result = "Unknown";
     String name = "Unknown";
@@ -199,7 +206,6 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
     @Override
     public void onCameraViewStarted(int width, int height) {
         grayscaleImage = new Mat(height, width, CvType.CV_8UC4);
-
         // Обличчя становитиме 20% висоти екрана
         absoluteFaceSize = (int) (height * 0.2);
 
@@ -234,8 +240,9 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
         //Якщо 1 лице
         if (facesArray.length == 1) {
             try {
+                final Mat capturedFace = new Mat(grayscaleImage, facesArray[0]);
                 //Конверція OpenCV Mat в JavaCV Mat
-                opencv_core.Mat javaCvMat = new opencv_core.Mat((Pointer) null) {{address = grayscaleImage.getNativeObjAddr();}};
+                opencv_core.Mat javaCvMat = new opencv_core.Mat((Pointer) null) {{address = capturedFace.getNativeObjAddr();}};
                 //Ресайз
                 resize(javaCvMat, javaCvMat, new opencv_core.Size(Methods.IMG_WIDTH, Methods.IMG_HEIGHT));
                 equalizeHist(javaCvMat, javaCvMat);
@@ -243,11 +250,17 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
                 IntPointer label = new IntPointer(1);
                 DoublePointer confidence = new DoublePointer(1);
                 mLBPHFaceRecognizer.predict(javaCvMat, label, confidence);
+                /*//Перевірка порівнюючого зображення
+                File facePicsPath = new File(String.valueOf(ROOT));
+                File savePhoto = new File(facePicsPath, String.format( "TEST" + "-%d.png", 0));
+                savePhoto.createNewFile();
+                imwrite(savePhoto.getAbsolutePath(), javaCvMat);
+                 */
                 int predictedLabel = label.get(0);
                 double acceptanceLevel = confidence.get(0);
 
                 Log.d(TAG, "Prediction completed, predictedLabel: " + predictedLabel + ", acceptanceLevel: " + acceptanceLevel);
-                if (predictedLabel == -1 || acceptanceLevel >= 88.0D) {
+                if (predictedLabel == -1 || acceptanceLevel >= 50.0D) {
                     name = "Unknown";
                     Log.d(TAG, "Closest picture: № " + predictedLabel + " Name: " + name);
                 } else {
@@ -259,7 +272,7 @@ public class Recognition extends AppCompatActivity implements CameraBridgeViewBa
                 for (Rect face : facesArray) {
                     int posX = (int) Math.max(face.tl().x, 0);
                     int posY = (int) Math.max(face.tl().y, 0);
-                    Imgproc.putText(aInputFrame, name + " Acceptence " + String.format("%.2f", acceptanceLevel), new Point(posX, posY),
+                    Imgproc.putText(aInputFrame, name/* + " Acceptence " + String.format("%.2f", acceptanceLevel)*/, new Point(posX, posY),
                             Core.FONT_HERSHEY_COMPLEX, 1.5, new Scalar(0, 255, 0, 255),5);
                 }
 

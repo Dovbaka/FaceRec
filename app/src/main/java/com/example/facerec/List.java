@@ -63,7 +63,7 @@ public class List extends AppCompatActivity {
         }
         startManagingCursor(c);
         String[] from = { ATTRIBUTE_NAME, ATTRIBUTE_DATE, ATTRIBUTE_NAME_IMAGE};
-        int[] to = new int[] {R.id.tvName, R.id.tvTime, R.id.tvImage};
+        int[] to = new int[] {R.id.tvName, R.id.tvTime};
 
         MySimpleAdapter sAdapter = new MySimpleAdapter(this, data,
                 R.layout.item, from, to);
@@ -82,7 +82,7 @@ public class List extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(0, CM_DELETE_ID, 0,"Delete Operation");
+        menu.add(0, CM_DELETE_ID, 0,"Delete item");
     }
 
     //Вибір елементу списку
