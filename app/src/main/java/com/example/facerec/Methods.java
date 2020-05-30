@@ -130,7 +130,7 @@ public class Methods {
             opencv_core.Mat photo = imread(image.getAbsolutePath(), opencv_imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
 
             //Виділення номеру фото
-            String Label = String.valueOf(image.getName().split("\\.")[0]).replaceAll("[a-zA-Zа-яА-Я]*", "").replace("-","");
+            String Label = String.valueOf(image.getName().split("\\.")[0]).replaceAll("[a-zA-Zа-яА-Я]*", "").replace("-","").replace(" ","");
             Log.d(TAG, Label);
             int intLabel = Integer.parseInt(Label);
 

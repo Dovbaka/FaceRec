@@ -34,7 +34,6 @@ public class List extends AppCompatActivity {
     Cursor c = null;
     //Оновлення списку
     public void ListUpdate(){
-        DecimalFormat format = new DecimalFormat("#.##");
         dbHelper = new DataBase(this);
         Cursor c = null;
         SQLiteDatabase db = dbHelper.getWritableDatabase();

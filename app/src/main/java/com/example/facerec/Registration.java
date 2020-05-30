@@ -195,7 +195,8 @@ public class Registration extends Activity
 
     private void capturePhoto(Mat rgbaMat) {
         try {
-            String text = nameText.getText().toString();
+            String text = nameText.getText().toString().replaceAll("[0-9]*", "").replaceAll("[^a-zA-Z0-9\\\\s]", "");
+            if(text.equals("")) text = "Name";
             Methods.takePhoto(Methods.numPhotos() + 1, rgbaMat.clone(), cascadeClassifier, absoluteFaceSize, text);
         }catch (Exception e) {
             e.printStackTrace();
@@ -268,8 +269,8 @@ public class Registration extends Activity
         adb.setNegativeButton("Delete", myClickListener);
         adb.setPositiveButton("Back", myClickListener);
         return adb.create();
-
     }
+
     DialogInterface.OnClickListener myClickListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
